@@ -1,5 +1,5 @@
 {% extends "base.html" %} 
-{% block title %} Последние обновления {% endblock %}
+{% block title %} Новости из подписок {% endblock %}
 
 {% block content %}
 {% load cache %}
@@ -9,7 +9,7 @@
 
     {% include "menu.html" with index=True %}
 
-        <h1> Последние обновления на сайте</h1>
+        <h1> Новости из подписок</h1>
 
         {% for post in page %}
             {% include "post_item.html" with post=post %}
