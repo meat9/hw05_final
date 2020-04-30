@@ -52,12 +52,15 @@ def profile(request, username):
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     count = Post.objects.filter(author=post_author).count()
-    follow_count = Follow.objects.filter(user=post_author).count()
-    f_count = Follow.objects.filter(author=post_author).count()
-    following = Follow.objects.filter(author=post_author, user=request.user).count()
-    return render(request,'profile.html', {'post_author': post_author, 'paginator': paginator,'page': page, 'count': count, 'following' : following, 'follow_count' : follow_count, 'f_count' : f_count})
-
-
+    if request.user.is_authenticated:
+        follow_count = Follow.objects.filter(user=post_author).count()
+        f_count = Follow.objects.filter(author=post_author).count()
+        following = Follow.objects.filter(author=post_author, user=request.user).count()
+        return render(request,'profile.html', {'post_author': post_author, 'paginator': paginator,'page': page, 'count': count, 'following' : following, 'follow_count' : follow_count, 'f_count' : f_count})
+    else:
+        return render(request,'profile.html', {'post_author': post_author, 'paginator': paginator,'page': page, 'count': count})
+    #return render(request,'profile.html', {'post_author': post_author, 'paginator': paginator,'page': page, 'count': count, 'following' : following, 'follow_count' : follow_count, 'f_count' : f_count})
+        
 def post_view(request, username, post_id):
     post_author = get_object_or_404(User, username=username)
     post = get_object_or_404(Post, author=post_author, pk=post_id)
@@ -107,7 +110,8 @@ def add_comment(request, username, post_id):
             
     else:
         form = CommentForm()
-        return render(request, 'comments.html', {'form': form, 'post': post,'count': count, "com" : com})
+        return render(request, 'comments.html', {'form': form, 'post': post})
+        #return render(request, 'comments.html', {'form': form, 'post': post,'count': count, "com" : com})
 
 
 @login_required
