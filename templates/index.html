@@ -2,8 +2,7 @@
 {% block title %} Последние обновления {% endblock %}
 
 {% block content %}
-{% load cache %}
-{% cache 20 index_page%}
+
 
 <div class="container">
 
@@ -20,5 +19,5 @@
         {% endif %}
 
     </div>
-{% endcache %}
+
 {% endblock %}

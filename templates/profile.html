@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %} Профиль {% endblock %}
 {% block content %}
+<a class="btn btn-sm text-muted" href="/" role="button">На главную</a>
 <main role="main" class="container">
     <div class="row">
             <div class="col-md-3 mb-3 mt-1">
@@ -14,24 +15,24 @@
                                          {{ post_author.get_username }}
                                     </div>
                             </div>
+                            <li class="list-group-item">
+                                {% if following %}
+                                <a class="btn btn-lg btn-light" 
+                                        href="{% url 'profile_unfollow' post_author.username %}" role="button"> 
+                                        Отписаться 
+                                </a> 
+                                {% else %}
+                                <a class="btn btn-lg btn-primary" 
+                                        href="{% url 'profile_follow' post_author.username %}" role="button">
+                                Подписаться 
+                                </a>
+                                {% endif %}
+                            </li>
                             <ul class="list-group list-group-flush">
-                                <li class="list-group-item">
-                                        {% if following %}
-                                        <a class="btn btn-lg btn-light" 
-                                                href="{% url 'profile_unfollow' profile.username %}" role="button"> 
-                                                Отписаться 
-                                        </a> 
-                                        {% else %}
-                                        <a class="btn btn-lg btn-primary" 
-                                                href="{% url 'profile_follow' profile.username %}" role="button">
-                                        Подписаться 
-                                        </a>
-                                        {% endif %}
-                                    </li>
                                     <li class="list-group-item">
                                             <div class="h6 text-muted">
-                                            Подписчиков: XXX <br />
-                                            Подписан: XXX
+                                            Подписчиков: {{f_count}} <br />
+                                            Подписан: {{follow_count}}
                                             </div>
                                     </li>
                                     <li class="list-group-item">
@@ -46,7 +47,10 @@
             <div class="col-md-9">                
                 <!-- Начало блока с отдельным постом --> 
                 {% for post in page %}
-                {% include "post_item.html" with post=post %}
+                    <div class="card mb-3 mt-1 shadow-sm">
+                                              <!-- Текст поста -->
+                                            {% include "post_item.html" with post=post %} 
+                    </div>
                 <!-- Конец блока с отдельным постом --> 
                 {% endfor %}
                 <!-- Остальные посты -->  

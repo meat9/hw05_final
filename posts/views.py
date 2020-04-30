@@ -47,12 +47,15 @@ def new_post(request):
 
 def profile(request, username):
     post_author = get_object_or_404(User, username=username)
-    profile = Post.objects.filter(author = post_author ).order_by('-pub_date').all()
+    profile = Post.objects.filter(author = post_author).order_by("-pub_date").all()
     paginator = Paginator(profile, 5)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
-    count = Post.objects.filter(author=post_author ).count()
-    return render(request,'profile.html',{'post_author':post_author , 'count':count,'paginator': paginator, 'profile':profile,'page': page})
+    count = Post.objects.filter(author=post_author).count()
+    follow_count = Follow.objects.filter(user=post_author).count()
+    f_count = Follow.objects.filter(author=post_author).count()
+    following = Follow.objects.filter(author=post_author, user=request.user).count()
+    return render(request,'profile.html', {'post_author': post_author, 'paginator': paginator,'page': page, 'count': count, 'following' : following, 'follow_count' : follow_count, 'f_count' : f_count})
 
 
 def post_view(request, username, post_id):
@@ -109,33 +112,29 @@ def add_comment(request, username, post_id):
 
 @login_required
 def follow_index(request):
-        follow = Follow.objects.get(user=request.user)
-
-
-        post_list = Follow.objects.order_by('-pub_date').all()
-        paginator = Paginator(post_list, 10) # показывать по 10 записей на странице.
-        page_number = request.GET.get('page') # переменная в URL с номером запрошенной страницы
-        page = paginator.get_page(page_number) # получить записи с нужным смещением
-        return render(request, 'follow.html', {'page': page, 'paginator': paginator})
-        # ...
-        #return render(request, "follow.html", {...})
+    follow = Follow.objects.filter(user=request.user).values_list("author_id", flat=True)
+    count = Follow.objects.filter(user=request.user).count()
+    post_list = Post.objects.filter(author_id__in=follow).order_by("-pub_date")
+    paginator = Paginator(post_list, 10) # показывать по 10 записей на странице.            
+    page_number = request.GET.get('page') # переменная в URL с номером запрошенной страницы
+    page = paginator.get_page(page_number) # получить записи с нужным смещением
+    return render(request, 'follow.html', {'page': page, 'paginator': paginator, 'count': count})
 
 
 @login_required
 def profile_follow(request, username):
-    post_author = get_object_or_404(User, username=username)
-    followers = Follow.objects.create(user=request.user, author=post_author)
-    return (request, followers)
-        #pass
+    author = get_object_or_404(User, username=username)
+
+    if author != request.user:
+        Follow.objects.create(user=request.user, author=author)
+    return redirect(follow_index)
 
 
 @login_required
 def profile_unfollow(request, username):
     post_author = get_object_or_404(User, username=username)
-    unfollowers = Follow.objects.filter(user=request.user, author=post_author).delete()
-    return (request, unfollowers)
-    # ...
-    #pass
+    unfollow = Follow.objects.filter(user=request.user, author=post_author).delete()
+    return redirect(index)
 
 
 def page_not_found(request, exception):
