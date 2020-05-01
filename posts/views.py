@@ -59,7 +59,7 @@ def profile(request, username):
         return render(request,'profile.html', {'post_author': post_author, 'paginator': paginator,'page': page, 'count': count, 'following' : following, 'follow_count' : follow_count, 'f_count' : f_count})
     else:
         return render(request,'profile.html', {'post_author': post_author, 'paginator': paginator,'page': page, 'count': count})
-    #return render(request,'profile.html', {'post_author': post_author, 'paginator': paginator,'page': page, 'count': count, 'following' : following, 'follow_count' : follow_count, 'f_count' : f_count})
+    
         
 def post_view(request, username, post_id):
     post_author = get_object_or_404(User, username=username)
@@ -100,19 +100,19 @@ def add_comment(request, username, post_id):
         if form.is_valid():
             text = form.cleaned_data["text"]
             post = get_object_or_404(Post, author=post_author, id=post_id)
-            author = request.user
+            author = get_object_or_404(User, username=request.user)
             Comment.objects.create(text=text, post=post, author=author)
             return redirect(post_view, username, post_id)
             
         else:
             form = CommentForm()
-            return render(request, 'comments.html', {'form': form, 'post': post})
+            return redirect(post_view, username, post_id)
+            #return render(request, 'comments.html', {'form': form, 'post': post})
             
     else:
         form = CommentForm()
         return render(request, 'comments.html', {'form': form, 'post': post})
-        #return render(request, 'comments.html', {'form': form, 'post': post,'count': count, "com" : com})
-
+      
 
 @login_required
 def follow_index(request):
@@ -128,8 +128,10 @@ def follow_index(request):
 @login_required
 def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
-
-    if author != request.user:
+    count = Follow.objects.filter(user=request.userб author=author).count()
+    if count > 0:
+        return redirect(follow_index)
+    else author != request.user:
         Follow.objects.create(user=request.user, author=author)
     return redirect(follow_index)
 
