@@ -60,7 +60,7 @@ def profile(request, username):
     else:
         return render(request,'profile.html', {'post_author': post_author, 'paginator': paginator,'page': page, 'count': count})
     
-        
+@login_required        
 def post_view(request, username, post_id):
     post_author = get_object_or_404(User, username=username)
     post = get_object_or_404(Post, author=post_author, pk=post_id)
@@ -91,11 +91,13 @@ def post_edit(request, username, post_id):
     else:
         return redirect(post_view, username, post_id)
 
-
+@login_required
 def add_comment(request, username, post_id):
-    post_author = get_object_or_404(User, username=username)
-    post = get_object_or_404(Post, author=post_author, id=post_id)
+    #post_author = get_object_or_404(User, username=username)
+    #post = get_object_or_404(Post, author=post_author, id=post_id)
     if request.user.is_authenticated:
+        post_author = get_object_or_404(User, username=username)
+        post = get_object_or_404(Post, author=post_author, id=post_id)
         if request.method == "POST":
             form = CommentForm(request.POST)
             if form.is_valid():
@@ -104,17 +106,15 @@ def add_comment(request, username, post_id):
                 author = get_object_or_404(User, username=request.user)
                 Comment.objects.create(text=text, post=post, author=author)
                 return redirect(post_view, username, post_id)
-            
             else:
                 form = CommentForm()
                 return redirect(post_view, username, post_id)
                 #return render(request, 'comments.html', {'form': form, 'post': post})
-            
         else:
             form = CommentForm()
             return render(request, 'comments.html', {'form': form, 'post': post})
     else:
-        return redirect(request, 'signup.html')
+        return render(request, 'comments.html', {'form': form, 'post': post})
       
 
 @login_required
