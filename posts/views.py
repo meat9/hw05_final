@@ -9,11 +9,11 @@ from .models import Post, Group, User, Comment, Follow
 
 
 def index(request):
-        post_list = Post.objects.order_by('-pub_date').all()
-        paginator = Paginator(post_list, 10) # показывать по 10 записей на странице.
-        page_number = request.GET.get('page') # переменная в URL с номером запрошенной страницы
-        page = paginator.get_page(page_number) # получить записи с нужным смещением
-        return render(request, 'index.html', {'page': page, 'paginator': paginator})
+    post_list = Post.objects.order_by('-pub_date').all()
+    paginator = Paginator(post_list, 10) # показывать по 10 записей на странице.
+    page_number = request.GET.get('page') # переменная в URL с номером запрошенной страницы
+    page = paginator.get_page(page_number) # получить записи с нужным смещением
+    return render(request, 'index.html', {'page': page, 'paginator': paginator})
 
 
 def group_posts(request, slug):
@@ -95,14 +95,13 @@ def post_edit(request, username, post_id):
 @login_required
 def add_comment(request, username, post_id):
     post_author = get_object_or_404(User, username=username)
-    post = get_object_or_404(Post, author=post_author, id=post_id)
     if request.method == "POST":
         form = CommentForm(request.POST)
         if form.is_valid():
             text = form.cleaned_data["text"]
             post = get_object_or_404(Post, author=post_author, id=post_id)
             author = get_object_or_404(User, username=request.user)
-            Comment.objects.create(text=text, post=post, author=author)
+            form.save()
             return redirect(post_view, username, post_id)
         else:
             form = CommentForm()
@@ -145,7 +144,3 @@ def page_not_found(request, exception):
 
 def server_error(request):
         return render(request, "misc/500.html", status=500)
-
-
-
-
