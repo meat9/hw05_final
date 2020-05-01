@@ -21,7 +21,7 @@
                                         href="{% url 'profile_unfollow' post_author.username %}" role="button"> 
                                         Отписаться 
                                 </a> 
-                                {% else %}
+                                {% elif post_author != request.user %}
                                 <a class="btn btn-lg btn-primary" 
                                         href="{% url 'profile_follow' post_author.username %}" role="button">
                                 Подписаться 

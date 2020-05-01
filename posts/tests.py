@@ -1,8 +1,8 @@
 from django.test import TestCase, Client
-from .models import Post, Group
-from users.forms import User
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
+from users.forms import User
+from .models import Post, Group, Follow, Comment
 
 
 class ProfileTest(TestCase):
@@ -15,7 +15,7 @@ class ProfileTest(TestCase):
                 self.group = Group.objects.create(title='group_name', slug='sgroup', description='tests group from sarah')
                 self.post = Post.objects.create(author=self.user, text='TEXT', group=self.group)
                 with open('./media/posts/file.jpg', 'rb') as img:
-                        post_image = self.client.post(f"/{self.user.username}/{self.post.id}/edit/",
+                        self.client.post(f"/{self.user.username}/{self.post.id}/edit/",
                         {'author': self.user, 'text': 'TEXT', 'image': img, 'group': self.group.id})
 
 
@@ -77,7 +77,7 @@ class ProfileTest(TestCase):
 
         def test_notimage_on_pages(self):
                 with open('posts/file.txt', 'rb') as img:
-                        post_notimage = self.client.post(f"/{self.user.username}/{self.post.id}/edit/", 
+                        self.client.post(f"/{self.user.username}/{self.post.id}/edit/", 
                         {'author': self.user, 'text': 'text', 'image': img}, follow=True)
                 response = self.client.get(f"/{self.user.username}/{self.post.id}/edit/")
                 self.assertNotContains(response, '<img', status_code=200)
@@ -89,4 +89,33 @@ class ProfileTest(TestCase):
                 key = make_template_fragment_key('index_page')
                 cashe = cache.get(key)
                 self.assertFalse(cashe is None)
-                 
+
+
+        def test_following_unfollowing(self):
+                user2 = User.objects.create_user(username="john", email="connor88.s@skynet.com", password="12345")
+                post2 = Post.objects.create(author=user2, text='TEXT2')
+                self.client.login(username="sarah", password="12345")
+                response = self.client.get(f"/{user2.username}/follow/")
+                Follow.objects.create(user=self.user, author=user2)
+                response = self.client.get("/")
+                response = self.client.get(f"/{user2.username}/")
+                response = self.client.get("/follow/")
+                self.assertContains(response, post2.text)
+                Follow.objects.filter(user=self.user, author=user2).delete()
+                response = self.client.get("/follow/")
+                
+
+        def test_comment_not_login_user(self):
+                self.client.logout() 
+                response = self.client.get(f"/{self.user.username}/{self.post.id}/comment")
+                self.assertEqual(response.status_code, 301)
+                response = self.client.get("/auth/login/")
+                self.assertEqual(response.status_code, 200)
+
+
+        def test_comment_login_user(self):
+                self.client.login(username="sarah", password="12345")
+                response = self.client.get(f"/{self.user.username}/{self.post.id}/comment/")
+                comm = Comment.objects.create(post=self.post, author=self.user, text="test commenting")
+                response = self.client.get(f"/{self.user.username}/{self.post.id}/")
+                self.assertContains(response, comm.text)

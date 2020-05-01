@@ -1,11 +1,11 @@
 import datetime as dt
 from django.http import HttpResponse
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.shortcuts import render, get_object_or_404
 from .forms import PostForm, CommentForm
 from .models import Post, Group, User, Comment, Follow
-from django.contrib.auth.decorators import login_required
 
 
 def index(request):
@@ -24,6 +24,7 @@ def group_posts(request, slug):
     page = paginator.get_page(page_number)
     return render(request, 'group.html', {'group': group, 'page': page, 'paginator': paginator})
 
+
 @login_required
 def new_post(request):
     text_head = 'Добавить запись'
@@ -36,10 +37,8 @@ def new_post(request):
             image = form.cleaned_data["image"]
             Post.objects.create(text=text, group=group, author=request.user, image=image)
             return redirect('index')
-            
         else:
             return render(request, 'new.html', {'form': form, 'text_head': text_head, 'text_button': text_button})
-            
     else:
         form = PostForm(request.POST, files=request.FILES or None)
         return render(request, 'new.html', {'form': form, 'text_head': text_head, 'text_button': text_button})
@@ -56,7 +55,8 @@ def profile(request, username):
         follow_count = Follow.objects.filter(user=post_author).count()
         f_count = Follow.objects.filter(author=post_author).count()
         following = Follow.objects.filter(author=post_author, user=request.user).count()
-        return render(request,'profile.html', {'post_author': post_author, 'paginator': paginator,'page': page, 'count': count, 'following' : following, 'follow_count' : follow_count, 'f_count' : f_count})
+        return render(request,'profile.html', {'post_author': post_author, 'paginator': paginator,'page': page, 'count': count, 
+        'following' : following, 'follow_count' : follow_count, 'f_count' : f_count})
     else:
         return render(request,'profile.html', {'post_author': post_author, 'paginator': paginator,'page': page, 'count': count})
     
@@ -91,6 +91,7 @@ def post_edit(request, username, post_id):
     else:
         return redirect(post_view, username, post_id)
 
+
 @login_required
 def add_comment(request, username, post_id):
     post_author = get_object_or_404(User, username=username)
@@ -103,12 +104,9 @@ def add_comment(request, username, post_id):
             author = get_object_or_404(User, username=request.user)
             Comment.objects.create(text=text, post=post, author=author)
             return redirect(post_view, username, post_id)
-            
         else:
             form = CommentForm()
             return redirect(post_view, username, post_id)
-            #return render(request, 'comments.html', {'form': form, 'post': post})
-            
     else:
         form = CommentForm()
         return render(request, 'comments.html', {'form': form, 'post': post})
@@ -138,12 +136,10 @@ def profile_follow(request, username):
 def profile_unfollow(request, username):
     post_author = get_object_or_404(User, username=username)
     unfollow = Follow.objects.filter(user=request.user, author=post_author).delete()
-    return redirect(index)
+    return redirect(profile, username)
 
 
 def page_not_found(request, exception):
-        # Переменная exception содержит отладочную информацию, 
-        # выводить её в шаблон пользователской страницы 404 мы не станем
         return render(request, "misc/404.html", {"path": request.path}, status=404)
 
 
