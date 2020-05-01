@@ -56,8 +56,7 @@ def profile(request, username):
         follow_count = Follow.objects.filter(user=post_author).count()
         f_count = Follow.objects.filter(author=post_author).count()
         following = Follow.objects.filter(author=post_author, user=request.user).count()
-        return render(request,'profile.html', {'post_author': post_author, 
-        'paginator': paginator,'page': page, 'count': count, 'following' : following, 'follow_count' : follow_count, 'f_count' : f_count})
+        return render(request,'profile.html', {'post_author': post_author, 'paginator': paginator,'page': page, 'count': count, 'following' : following, 'follow_count' : follow_count, 'f_count' : f_count})
     else:
         return render(request,'profile.html', {'post_author': post_author, 'paginator': paginator,'page': page, 'count': count})
     
@@ -114,8 +113,8 @@ def add_comment(request, username, post_id):
         else:
             form = CommentForm()
             return render(request, 'comments.html', {'form': form, 'post': post})
-    #else:
-       # return redirect(post_view, username, post_id)
+    else:
+        return redirect(request, 'signup.html')
       
 
 @login_required
