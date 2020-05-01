@@ -99,8 +99,8 @@ def add_comment(request, username, post_id):
     if request.method == "POST":
         form = CommentForm(request.POST)
         if form.is_valid():
-            text = form.cleaned_data["text"]
-            author = get_object_or_404(User, username=request.user)
+            form.cleaned_data["text"]
+            get_object_or_404(User, username=request.user)
             form.save()
             return redirect(post_view, username, post_id)
         else:
