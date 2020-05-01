@@ -95,23 +95,26 @@ def post_edit(request, username, post_id):
 def add_comment(request, username, post_id):
     post_author = get_object_or_404(User, username=username)
     post = get_object_or_404(Post, author=post_author, id=post_id)
-    if request.method == "POST":
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            text = form.cleaned_data["text"]
-            post = get_object_or_404(Post, author=post_author, id=post_id)
-            author = get_object_or_404(User, username=request.user)
-            Comment.objects.create(text=text, post=post, author=author)
-            return redirect(post_view, username, post_id)
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            form = CommentForm(request.POST)
+            if form.is_valid():
+                text = form.cleaned_data["text"]
+                post = get_object_or_404(Post, author=post_author, id=post_id)
+                author = get_object_or_404(User, username=request.user)
+                Comment.objects.create(text=text, post=post, author=author)
+                return redirect(post_view, username, post_id)
+            
+            else:
+                form = CommentForm()
+                return redirect(post_view, username, post_id)
+                #return render(request, 'comments.html', {'form': form, 'post': post})
             
         else:
             form = CommentForm()
-            return redirect(post_view, username, post_id)
-            #return render(request, 'comments.html', {'form': form, 'post': post})
-            
+            return render(request, 'comments.html', {'form': form, 'post': post})
     else:
-        form = CommentForm()
-        return render(request, 'comments.html', {'form': form, 'post': post})
+        return redirect(request, 'auth.html')
       
 
 @login_required
