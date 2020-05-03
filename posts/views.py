@@ -83,7 +83,6 @@ def post_edit(request, username, post_id):
                 form.save()
                 return redirect(post_view, username, post_id)  
             else:
-  
                 return redirect(post_edit, username, post_id)
         else:
             form = PostForm(request.POST or None, files=request.FILES or None, instance=post)
