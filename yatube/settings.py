@@ -30,6 +30,7 @@ ALLOWED_HOSTS = [
         "127.0.0.1",
         "[::1]",
         "testserver",
+        "84.201.179.160",
 ]
 
 # Application definition
