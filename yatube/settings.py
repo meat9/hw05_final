@@ -31,7 +31,11 @@ ALLOWED_HOSTS = [
         "[::1]",
 	"84.201.179.160",
         "testserver",
+<<<<<<< HEAD
 
+=======
+        "84.201.179.160",
+>>>>>>> 1339ed283bf03071cab3fd0fe2439338c7cef8e3
 ]
 
 # Application definition
