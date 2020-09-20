@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+#import sorl.thumbnail
+#from sorl import thumbnail
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,27 +25,24 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '532am#bi-r5qx2q5=1ps)&sr(hqd)9ez_%%_(d367^18oo1r%v'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
         "localhost",
         "127.0.0.1",
         "[::1]",
-	"84.201.179.160",
         "testserver",
-<<<<<<< HEAD
-
-=======
         "84.201.179.160",
->>>>>>> 1339ed283bf03071cab3fd0fe2439338c7cef8e3
 ]
 
 # Application definition
 
 INSTALLED_APPS = [
-    'sorl.thumbnail',
+  
     'posts',
     'users',
+    'sorl.thumbnail',  
+    #'thumbnail',  
     'django.contrib.sites',
     'django.contrib.flatpages',
     'django.contrib.admin',
@@ -52,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
 
 
 ]

@@ -14,7 +14,7 @@ class ProfileTest(TestCase):
                 self.client.login(username="sarah", password="12345")
                 self.group = Group.objects.create(title='group_name', slug='sgroup', description='tests group from sarah')
                 self.post = Post.objects.create(author=self.user, text='TEXT', group=self.group)
-                with open('./posts/files_for_tests/file.jpg', 'rb') as img:
+                with open('./media/posts/file.jpg', 'rb') as img:
                         self.client.post(f"/{self.user.username}/{self.post.id}/edit/",
                         {'author': self.user, 'text': 'TEXT', 'image': img, 'group': self.group.id})
 
@@ -27,8 +27,6 @@ class ProfileTest(TestCase):
         def test_post(self):
                 self.client.login(username="sarah", password="12345")
                 response = self.client.get("/new/")
-                post_new = Post.objects.create(author=self.user, text='tests_posting')
-                self.assertEqual(post_new.text, 'tests_posting')
                 self.assertEqual(str(response.context["user"]), "sarah")
                 self.assertEqual(response.status_code, 200)
 
@@ -78,7 +76,7 @@ class ProfileTest(TestCase):
 
 
         def test_notimage_on_pages(self):
-                with open('posts/files_for_tests/file.txt', 'rb') as img:
+                with open('posts/file.txt', 'rb') as img:
                         self.client.post(f"/{self.user.username}/{self.post.id}/edit/", 
                         {'author': self.user, 'text': 'text', 'image': img}, follow=True)
                 response = self.client.get(f"/{self.user.username}/{self.post.id}/edit/")
@@ -91,7 +89,6 @@ class ProfileTest(TestCase):
                 key = make_template_fragment_key('index_page')
                 cashe = cache.get(key)
                 self.assertFalse(cashe is None)
-                cache.clear()
 
 
         def test_following_unfollowing(self):
